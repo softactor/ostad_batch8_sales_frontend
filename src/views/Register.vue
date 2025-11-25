@@ -44,7 +44,15 @@
                                 
                                 <div class="mb-3">
                                     <label for="image" class="form-label">Image</label>
-                                    <input type="file" class="form-control" @change="fileUpload">
+                                    <input type="file" class="form-control" @change="imageUpload">
+                                    <small class="text-danger" v-if="errors.image">{{ errors.image }}</small>
+                                </div>
+
+                                <div v-if="userImagePreview" class="card" style="width: 18rem;">
+                                    <img :src="userImagePreview" class="card-img-top" alt="...">
+                                    <div class="card-body">
+                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card’s content.</p>
+                                    </div>
                                 </div>
 
                                 <button type="submit" class="btn btn-primary">Submit</button>
@@ -69,6 +77,7 @@
 <script setup>
 
 import { ref, reactive } from 'vue';
+import { toast } from 'vue3-toastify';
 
 
 const name = ref('')
@@ -77,6 +86,7 @@ const contactNumber = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const userImage = ref('')
+const userImagePreview = ref('')
 
 const errors = reactive({})
 
@@ -85,11 +95,36 @@ function handleSubmission()
 {
 
     if(!validate()){
-        alert('error')
+        toast.error('Form validation failed')
     }
-    
+
+
+    const user = {
+        id: Date.now(),
+        name: name.value,
+        email:email.value,
+        contactNumber:contactNumber.value,
+        password:password.value,
+        image: userImagePreview.value
+    }
+
+    saveLocalStorage(user)    
     //next line will be executed
 
+
+}
+
+
+function saveLocalStorage(user)
+{
+    const previousDataRaw = localStorage.getItem('users')
+
+    const parseData = previousDataRaw ? JSON.parse(previousDataRaw) : []
+    parseData.push(user)
+
+    localStorage.setItem('users', JSON.stringify(parseData))
+
+    toast.success('User registration completed')
 
 }
 
@@ -109,6 +144,44 @@ function validate(){
 
     return Object.keys(errors).length === 0
 }
+
+
+function imageUpload(event){
+    const myImage = event.target.files && event.target.files[0]
+
+    if(!myImage)
+    {
+        userImage.value = ''
+        userImagePreview.value = ''
+        return
+    }
+
+    if(!myImage.type.startsWith('image/')){
+        errors.image = "File must be an Image"
+        userImage.value = ''
+        userImagePreview.value = ''
+        return
+    }
+    
+    const maxSize = 1024 * 500
+    if(myImage.size > maxSize){
+        errors.image = "File must be < 500KB"
+        userImage.value = ''
+        userImagePreview.value = ''
+        return
+    }
+
+
+    const fileReader = new FileReader()
+
+
+    fileReader.onload = e => {
+        userImagePreview.value = e.target.result
+    }
+    fileReader.readAsDataURL(myImage)
+
+
+ }
 
 
 </script>
