@@ -3,6 +3,7 @@ import Home from "@/views/Home.vue";
 import Post from "@/views/Post.vue";
 import DraftComponent from "@/components/DraftComponent.vue";
 import { createRouter, createWebHistory  } from "vue-router";
+import Register from "@/views/Register.vue";
 
 
 
@@ -27,6 +28,11 @@ const routes = [
         path: '/lifecycle',
         name: 'Lifecycle',
         component: DraftComponent
+    },   
+    {
+        path: '/registration',
+        name: 'Registration',
+        component: Register
     },   
 
 ]

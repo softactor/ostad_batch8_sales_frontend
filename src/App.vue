@@ -20,6 +20,10 @@
     <router-link to="/lifecycle">
       Lifecycle
     </router-link>
+    |
+    <router-link to="/registration">
+      Registration
+    </router-link>
 
   </nav>
 
