@@ -4,6 +4,7 @@ import Post from "@/views/Post.vue";
 import DraftComponent from "@/components/DraftComponent.vue";
 import { createRouter, createWebHistory  } from "vue-router";
 import Register from "@/views/Register.vue";
+import Login from "@/views/Login.vue";
 
 
 
@@ -33,6 +34,11 @@ const routes = [
         path: '/registration',
         name: 'Registration',
         component: Register
+    },   
+    {
+        path: '/login',
+        name: 'Login',
+        component: Login
     },   
 
 ]
