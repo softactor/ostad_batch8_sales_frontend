@@ -6,6 +6,10 @@ import { createRouter, createWebHistory  } from "vue-router";
 import Register from "@/views/Register.vue";
 import Login from "@/views/Login.vue";
 
+import { useAuthStore } from "@/stores/auth";
+import Dashboard from "@/views/admin/Dashboard.vue";
+import Product from "@/views/admin/Product.vue";
+
 
 
 
@@ -40,12 +44,41 @@ const routes = [
         name: 'Login',
         component: Login
     },   
+    {
+        path: '/admin/dashboard',
+        name: 'Dashboard',
+        component: Dashboard,
+        meta: {
+            requireAuth: true
+        }
+    },   
+    {
+        path: '/admin/product',
+        name: 'Product',
+        component: Product,
+        meta: {
+            requireAuth: true
+        }
+    },   
 
 ]
 
 const router = createRouter({
         history: createWebHistory(),
         routes
+    })
+
+
+    router.beforeEach((to, from, next) => {
+
+        const authStore = useAuthStore()
+
+        if(to.meta.requireAuth && !authStore.isAuthenticated){
+            next('/login')
+        }else{
+            next()
+        }
+
     })
 
 

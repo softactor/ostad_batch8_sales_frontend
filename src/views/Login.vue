@@ -1,38 +1,45 @@
 <template>
-    <div>
-        <h2>Login</h2>
+    
+    <div class="d-flex justify-content-center align-items-center">
 
-        <div class="card">
+        <div style="width: 650px;">
+            <h2>Login</h2>
 
-            <div class="card-body">
+            <div class="card">
 
-                <form @submit.prevent="handleLogin">
-                    <div class="mb-3">
-                        <label for="exampleInputEmail1" class="form-label">Email address</label>
-                        <input 
-                        type="email" 
-                        class="form-control" 
-                        v-model="email">
-                    </div>
-                    <div class="mb-3">
-                        <label for="exampleInputPassword1" class="form-label">Password</label>
+                <div class="card-body">
 
-                        <input 
-                        type="password" 
-                        class="form-control" 
-                        v-model="password">
+                    <form @submit.prevent="handleLogin">
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Email address</label>
+                            <input 
+                            type="email" 
+                            class="form-control" 
+                            v-model="email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInputPassword1" class="form-label">Password</label>
+
+                            <input 
+                            type="password" 
+                            class="form-control" 
+                            v-model="password">
 
 
-                    </div>
+                        </div>
 
-                    <button type="submit" class="btn btn-primary">Login</button>
-                </form>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+                </div>
+
             </div>
+
 
         </div>
 
-
     </div>
+    
+    
 
 </template>
 
