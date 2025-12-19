@@ -10,44 +10,75 @@
                 
                 <button type="btn btn-sm" @click="showProductForm">Add Product</button>
 
-                <div v-if="products.length > 0">
+                <div v-if="products.data.length > 0">
 
                     <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Category</th>
-                            <th scope="col">SKU</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Image</th>
-                            <th scope="col">Stock Quantity</th>
-                            <th scope="col">Reorder Level</th>
-                            <th scope="col">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(product, index) in products" :key="product.id">
-                            <td scope="row">{{ ++index }}</td>
-                            <td>{{ product.name }}</td>
-                            <td>{{ product.category_name }}</td>
-                            <td>{{ product.sku }}</td>
-                            <td>{{ product.price }}</td>
-                            <td>
-                                <img 
-                                v-if="product.image_path" 
-                                :src="`http://salesInventory.test/storage/${product.image_path}`" 
-                                :alt="product.name" height="75">
-                            </td>
-                            <td>{{ product.stock_quantity }}</td>
-                            <td>{{ product.reorder_level }}</td>
-                            <td>
-                                <button type="button" class="btn btn-sm btn-primary" @click="editProduct(product)">Edit</button> &nbsp;
-                                <button type="button" class="btn btn-sm btn-danger" @click="confirmDelete(product)" >Delete</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">SKU</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Image</th>
+                                <th scope="col">Stock Quantity</th>
+                                <th scope="col">Reorder Level</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(product, index) in products.data" :key="product.id">
+                                <td scope="row">{{ ++index }}</td>
+                                <td>{{ product.name }}</td>
+                                <td>{{ product.category_name }}</td>
+                                <td>{{ product.sku }}</td>
+                                <td>{{ product.price }}</td>
+                                <td>
+                                    <img v-if="product.image_path" :src="appConfig.getImageUrl(product.image_path)"
+                                        :alt="product.name" height="75">
+                                </td>
+                                <td>{{ product.stock_quantity }}</td>
+                                <td>{{ product.reorder_level }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-primary"
+                                        @click="editProduct(product)">Edit</button> &nbsp;
+                                    <button type="button" class="btn btn-sm btn-danger"
+                                        @click="confirmDelete(product)">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+
+                    <div v-if="products.meta" class="mt-3">
+
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                                <li class="page-item">
+                                    
+                                    <button class="page-link" @click="chnagePage(products.meta.current_page - 1)">Previous</button>
+                                
+                                </li>
+                                <li class="page-item" 
+                                    v-for="page in products.meta.last_page"
+                                    :key="page"
+                                    :class="{ active: page === products.meta.current_page}"
+                                    >
+                                    <button type="button" class="page-link" @click="chnagePage(page)">
+                                        {{ page }}
+                                    </button>
+                                </li>
+                                <li class="page-item">
+                                    <button class="page-link" @click="chnagePage(products.meta.current_page + 1)">Next</button>
+                                </li>
+                            </ul>
+                        </nav>
+
+                    </div>
+
+                    
+
+
 
                 </div>
 
@@ -67,6 +98,12 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="closeProductForm"></button>
                     </div>
                     <div class="modal-body">
+                            <div class="mb-3" v-if="currentImageUrl">
+                                <label  class="form-label">Current Image</label>
+                                <img 
+                                    :src="currentImageUrl" 
+                                    :alt="form.name" height="75">
+                            </div>
                             <div class="mb-3">
                                 <label for="name" class="form-label">Name</label>
                                 <input class="form-control" v-model="form.name">
@@ -127,11 +164,16 @@ import http from '@/http/http';
 import { onMounted, ref, reactive } from 'vue';
 import { toast } from "vue3-toastify";
 
+import appConfig from '@/config/app';
+
 
 const editId = ref('')
-const products = ref([])
+const products = ref({data: [] })
 const categories = ref([])
 const showModal = ref(false)
+
+const currentImageUrl = ref('')
+
 const form = reactive({
     name:'',
     category_id:'',
@@ -149,7 +191,9 @@ const fetchProducts =  async () => {
 
     const productData = await http.get('/products') 
 
-    products.value =  productData?.data?.data?.data ?? []
+    products.value =  productData?.data?.data ?? []
+
+    console.log(products.value)
 }
 
 const fetchCategories =  async () => {
@@ -193,6 +237,7 @@ function emptyProductForm(){
     form.stock_quantity = ''
     form.reorder_level = ''
     form.image = ''
+    currentImageUrl.value = ''
 }
 
 
@@ -208,6 +253,11 @@ const editProduct = (product) => {
     form.price = product.price
     form.stock_quantity = product.stock_quantity
     form.reorder_level = product.reorder_level
+
+    if(product.image_path){
+        currentImageUrl.value = appConfig.getImageUrl(product.image_path)
+    }
+
 
     showModal.value = true;
 
@@ -225,7 +275,14 @@ const manageProduct = async () =>{
 
         if(editId.value){
 
-            const response = await http.put(`/products/${editId.value}`, form)
+            const response = await http.post(`/products/${editId.value}`, form, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+                params:{
+                    _method:'PUT'
+                }
+            })
             toast.success('Product has been successfully Update')
 
         }else{
@@ -260,6 +317,16 @@ function closeProductForm()
 {
     showModal.value = false
     emptyProductForm()
+}
+
+
+const chnagePage = async (page) => {
+
+    if(page < 1 || page > products.value.meta.last_page) return
+
+    const newProductData = await http.get(`/products?page=${page}`)
+    products.value = newProductData?.data?.data
+
 }
 
 
